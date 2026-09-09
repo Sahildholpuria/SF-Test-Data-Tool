@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - SF DataForge Chrome Extension</title>
+  <style>
+    :root {
+      --primary: #0176D3;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: var(--bg);
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+    h1 {
+      color: var(--primary);
+      margin-top: 0;
+      font-size: 2rem;
+      border-bottom: 2px solid #edf2f7;
+      padding-bottom: 12px;
+    }
+    h2 {
+      color: #0f172a;
+      margin-top: 32px;
+      font-size: 1.3rem;
+    }
+    h3 {
+      color: #334155;
+      font-size: 1.1rem;
+    }
+    p, li {
+      color: #334155;
+      font-size: 0.98rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 0.92rem;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .footer-note {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Privacy Policy for SF DataForge</h1>
+    <p><strong>Last Updated:</strong> September 2026 | <strong>Developer & Data Controller:</strong> Sahil Dholpuria | <span class="badge">Manifest V3 Extension</span></p>
+
+    <h2>1. Overview</h2>
+    <p><strong>SF DataForge</strong> ("the extension") is a productivity tool for Salesforce professionals to generate realistic test data and perform bulk record cleanups within their authorized Salesforce organizations.</p>
+    <p><strong>SF DataForge does not collect, track, transmit, or monetize any user data, Salesforce credentials, or organizational records.</strong> All operations run locally inside your browser directly against the official Salesforce REST APIs.</p>
+
+    <h2>2. Information We Access and Process</h2>
+    <h3>A. Salesforce Session & Authentication Tokens</h3>
+    <p>To communicate with your Salesforce instance, the extension accesses the authenticated session cookie (<code>sid</code>) of your active Salesforce tab or an access token supplied manually in settings. Tokens are held in memory during the browser session and are never transmitted to any server other than your designated Salesforce instance.</p>
+
+    <h3>B. Salesforce Metadata & Schemas</h3>
+    <p>The extension queries standard describe metadata (object fields, labels, types, picklist choices) to display the field configuration UI. This data remains strictly in your browser memory.</p>
+
+    <h3>C. Test Data & Record Deletion</h3>
+    <p>Generated mock data and bulk deletion requests are transmitted directly to your Salesforce instance via the official Composite REST API. Record IDs returned by Salesforce are displayed on-screen and stored in local history if desired.</p>
+
+    <h2>3. Chrome Permissions Justification</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Permission</th>
+          <th>Purpose & Justification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>cookies</code></td>
+          <td>Automatically discovers the active Salesforce session cookie (<code>sid</code>) on authorized Salesforce domains, removing the need to manually paste API tokens.</td>
+        </tr>
+        <tr>
+          <td><code>storage</code></td>
+          <td>Saves user-defined field templates, generation history, and settings locally on your machine.</td>
+        </tr>
+        <tr>
+          <td><code>activeTab</code></td>
+          <td>Verifies that the active tab is an authorized Salesforce domain before initiating connections.</td>
+        </tr>
+        <tr>
+          <td><code>tabs</code></td>
+          <td>Detects tab switching to maintain active connection and permits 1-click navigation to open Salesforce tabs.</td>
+        </tr>
+        <tr>
+          <td><code>sidePanel</code></td>
+          <td>Enables docking the extension side-by-side with your Salesforce records in Chrome's native Side Panel.</td>
+        </tr>
+        <tr>
+          <td><code>host_permissions</code></td>
+          <td>Required to send REST API requests directly to your Salesforce instance (<code>*.salesforce.com</code>, <code>*.force.com</code>, etc.).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Data Storage & User Control</h2>
+    <p>All data persistence is handled locally via Chrome's sandboxed <code>chrome.storage.local</code> API. You can permanently wipe all stored history and configurations at any time by clicking <strong>"Reset Storage"</strong> in the Settings tab, or by uninstalling the extension.</p>
+
+    <h2>5. Third-Party Sharing</h2>
+    <p>We do not share, sell, or disclose any user data to third parties, advertising networks, or analytics providers. The extension contains zero third-party tracking scripts.</p>
+
+    <div class="footer-note">
+      <p>Developer: <strong>Sahil Dholpuria</strong> | Support: support@sfdataforge.com | Open-Source on <a href="https://github.com/sahildholpuria/SF-Test-Data-Tool" target="_blank">GitHub</a></p>
+    </div>
+  </div>
+</body>
+</html>
