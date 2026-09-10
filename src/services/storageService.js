@@ -6,7 +6,8 @@
 const STORAGE_KEYS = {
   TEMPLATES: 'sf_dataforge_templates',
   HISTORY: 'sf_dataforge_history',
-  SETTINGS: 'sf_dataforge_settings'
+  SETTINGS: 'sf_dataforge_settings',
+  THEME: 'sf_dataforge_theme'
 };
 
 class StorageService {
@@ -135,6 +136,17 @@ class StorageService {
     const updated = { ...current, ...settings };
     await this.set(STORAGE_KEYS.SETTINGS, updated);
     return updated;
+  }
+
+  // --- THEME ---
+
+  static async getTheme() {
+    return await this.get(STORAGE_KEYS.THEME, 'light');
+  }
+
+  static async setTheme(theme) {
+    await this.set(STORAGE_KEYS.THEME, theme);
+    return theme;
   }
 }
 

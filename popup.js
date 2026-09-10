@@ -33,6 +33,7 @@ const DOM = {};
 
 document.addEventListener('DOMContentLoaded', async () => {
   cacheDOMElements();
+  await initTheme();
   bindNavigationEvents();
   bindGeneratorEvents();
   bindDeleterEvents();
@@ -59,6 +60,8 @@ function cacheDOMElements() {
   DOM.connectionStatusPill = document.getElementById('connectionStatusPill');
   DOM.statusDot = document.getElementById('statusDot');
   DOM.statusText = document.getElementById('statusText');
+  DOM.btnThemeToggle = document.getElementById('btnThemeToggle');
+  DOM.themeToggleIcon = document.getElementById('themeToggleIcon');
   DOM.btnOpenSidePanel = document.getElementById('btnOpenSidePanel');
   DOM.btnOpenFullTab = document.getElementById('btnOpenFullTab');
 
@@ -1024,6 +1027,10 @@ function setFilter(filterType, targetBtn) {
 }
 
 function bindQuickActionEvents() {
+  if (DOM.btnThemeToggle) {
+    DOM.btnThemeToggle.addEventListener('click', toggleTheme);
+  }
+
   DOM.btnOpenSidePanel.addEventListener('click', () => {
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
       chrome.runtime.sendMessage({ action: 'OPEN_SIDE_PANEL' });
@@ -1039,6 +1046,61 @@ function bindQuickActionEvents() {
       window.open(window.location.href, '_blank');
     }
   });
+}
+
+// ===================================================
+// THEME MANAGEMENT (Simple & Clean Light / Dark)
+// ===================================================
+
+async function initTheme() {
+  try {
+    const savedTheme = await StorageService.getTheme();
+    applyTheme(savedTheme || 'light');
+  } catch (err) {
+    applyTheme('light');
+  }
+}
+
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    if (DOM.themeToggleIcon) {
+      // Sun icon when in dark mode (click to switch to light)
+      DOM.themeToggleIcon.innerHTML = `
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      `;
+    }
+    if (DOM.btnThemeToggle) {
+      DOM.btnThemeToggle.title = 'Switch to Clean Light Theme';
+    }
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    if (DOM.themeToggleIcon) {
+      // Moon icon when in light mode (click to switch to dark)
+      DOM.themeToggleIcon.innerHTML = `
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      `;
+    }
+    if (DOM.btnThemeToggle) {
+      DOM.btnThemeToggle.title = 'Switch to Dark Theme';
+    }
+  }
+}
+
+async function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(newTheme);
+  await StorageService.setTheme(newTheme);
+  showToast(newTheme === 'dark' ? 'Dark theme enabled' : 'Clean & Simple theme enabled', 'info');
 }
 
 function bindAlertBannerEvents() {
