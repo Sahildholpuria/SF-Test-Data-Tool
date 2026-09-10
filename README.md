@@ -123,7 +123,7 @@ For detailed technical explanations, address clustering algorithms, picklist exp
 
 Created and maintained with precision by **Sahil Dholpuria**.
 - **GitHub**: [@sahildholpuria](https://github.com/sahildholpuria)
-- **Email**: support@sfdataforge.com
+- **Email**: dholpuria1999@gmail.com
 
 ---
 

@@ -85,5 +85,5 @@ SF DataForge is engineered to enterprise security standards:
 If you have questions regarding this Privacy Policy or the security practices of SF DataForge, please contact:
 
 - **Developer**: Sahil Dholpuria
-- **Email**: dholpuria1999@gmail.co
+- **Email**: dholpuria1999@gmail.com
 - **Repository**: [https://github.com/sahildholpuria/SF-Test-Data-Tool](https://github.com/sahildholpuria/SF-Test-Data-Tool)
