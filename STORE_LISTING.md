@@ -50,87 +50,71 @@ English
 *Copy and paste the text below into the "Detailed description" field in the Developer Dashboard:*
 
 ```markdown
-⚡ Looking for the ultimate Salesforce extension to generate mock test data, inspect schemas, or bulk-clean records in seconds?
+SF DataForge is a powerful productivity extension designed for Salesforce Administrators, Developers, and QA Teams to streamline test data workflows and sandbox management.
 
-SF DataForge is the essential Chrome extension built for Salesforce Administrators, Developers, QA Engineers, and Consultants. Whether you are validating validation rules, configuring flows, conducting user acceptance testing (UAT), or cleaning up sandbox data, SF DataForge automates your entire test data lifecycle right from your active Salesforce Lightning tab.
+Whether validating validation rules, testing automated flows, conducting user acceptance testing (UAT), or cleaning up test records, SF DataForge enables you to create realistic mock data and perform bulk record cleanups directly from your browser.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✨ WHY SALESFORCE PROFESSIONALS CHOOSE SF DATAFORGE
+✨ KEY FEATURES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🎯 SUPPORTS ANY SALESFORCE OBJECT (STANDARD & CUSTOM)
-• Standard SObjects: Account, Contact, Lead, Opportunity, Case, Task, Event, Product, Asset, Contract, and more.
-• Custom SObjects (*__c): Automatic instant describe metadata discovery for every custom object in your org.
-• Custom Fields: Full field-level control over custom picklists, text, numbers, dates, formulas, and lookups.
+🎯 COMPREHENSIVE SOBJECT SUPPORT
+• Full compatibility with standard objects (such as Account, Contact, Lead, Opportunity, and Case) as well as any custom object (*__c).
+• Automatic schema discovery: detects field types, required fields, and active picklist definitions directly from your org.
+• Custom field support: configure generation rules for text, numbers, dates, formulas, and lookups.
 
-🧠 DEEP SEMANTIC FIELD RECOGNITION
-SF DataForge analyzes field API names and business labels to automatically generate contextually accurate data:
-• Physical Addresses: Coherent US street names, matching cities, valid 5-digit ZIP codes, and standard state codes (CA, NY, TX, etc.).
-• Enterprise Financials: Realistic scaled annual revenues ($500k–$25M), compensation, unit costs, and discount percentages.
-• Realistic Dates: Adult birthdates (22–62 yrs), realistic future target dates (+15 to +120 days), and past milestones.
-• Identifiers & Codes: Masked SSN (XXX-XX-XXXX), Tax ID / EIN (XX-XXXXXXX), PO numbers, and tracking IDs.
+🧠 CONTEXTUAL SMART FIELD RECOGNITION
+• Physical Addresses: Generates coherent address clusters (matching street, city, state, and postal code).
+• Financials & Numeric Ranges: Generates scaled revenue, prices, employee counts, and percentages.
+• Date Scheduling: Generates realistic birthdates, future close dates, and historical timestamps.
+• Formatted Identifiers: Generates realistic order numbers, tax identifiers, and tracking codes.
 
-🎲 ZERO-DUPLICATE COMBINATORIAL ENGINE
-• Enterprise Names: 10,800+ adjective/noun permutations with unique numeric salts (e.g. "Quantum Dynamics Corp (842)").
-• Realistic Names & Emails: Generates unique randomized emails (jane.doe.7492@sandbox.io) to completely eliminate Salesforce Duplicate Rule errors.
-• Intra-Batch Deduplication: Guarantees zero collisions within batches.
+🎲 NON-DUPLICATE RECORD GENERATION
+• Combinatorial name generator ensures uniqueness across records.
+• Generates unique randomized emails and phone numbers to avoid triggering Salesforce Duplicate Rules.
+• Intra-batch tracking prevents record collisions during generation.
 
-👁️ INTERACTIVE PICKLIST VALUES EXPLORER
-• Automatically loads real, active picklist choices from your active Salesforce org.
-• Inline preview pills: Click any value directly in the table to lock it in.
-• Picklist Explorer Modal: Search through picklist values or roll a random choice.
-• State & Country Picklist compatibility: Guarantees active ISO state/country pairs, eliminating FIELD_INTEGRITY_EXCEPTION errors!
+👁️ INTERACTIVE PICKLIST EXPLORER
+• Inspect real active picklist values loaded directly from your org.
+• Preview values as interactive pills in the field configuration table.
+• Dedicated picklist modal allows searching or selecting random active entries.
+• Fully compatible with State and Country picklists.
 
 🧹 DATA CLEANER & BULK RECORD DELETION
-• Live Total in Org: Real-time SOQL count badge (SELECT count() FROM SObject).
-• Dynamic Field Inspection: Automatically detects the primary label field (Name, CaseNumber, Subject, Title, etc.).
-• Quick Filter Presets: All Records, Created Today, Created This Week, or Test Data Patterns.
-• Multi-Record Selection: Select all or individual records with visual row highlighting.
-• Safe Composite Batch Delete: Deletes records in chunks of up to 200 directly to your Salesforce Recycle Bin with confirmation safeguards.
+• Live record counter displays the total number of records in your org for the selected object.
+• Dynamic display field detection shows primary record labels for easy identification.
+• Multi-record selection allows selecting all or specific records with visual highlighting.
+• Safe composite deletion moves records to your Salesforce Recycle Bin with confirmation prompts.
 
-⚡ DIRECT SALESFORCE INSERTION & EXPORT
-• 1-Click Insert: Direct insertion via the official Salesforce Composite SObject Collections REST API (v60.0).
-• Live progress modal with real-time status and error messages.
-• Clickable record links that open created records directly in your Salesforce tab!
-• One-click export as CSV (Salesforce Data Loader ready) or JSON.
+⚡ DIRECT SALESFORCE INTEGRATION & EXPORT
+• Fast batch creation using the official Salesforce Composite SObject Collections REST API.
+• Live progress window showing real-time batch insertion status.
+• Clickable record ID links open newly created records directly in your Salesforce tab.
+• One-click export to CSV or JSON formats for offline analysis.
 
-🎨 SIMPLE, CLEAN & MODERN THEME (LIGHT & DARK)
-• Beautiful interface inspired by the Salesforce Lightning Design System (SLDS).
-• 1-Click Theme Switcher (☀️ Light / 🌙 Dark) with persistent preferences.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤝 THE PERFECT COMPANION TO YOUR SALESFORCE TOOLBELT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SF DataForge seamlessly complements your favorite Salesforce tools:
-• Salesforce Inspector & Salesforce Inspector Reloaded
-• Salesforce DevTools & ORGanizer for Salesforce
-• Salesforce Data Loader & Workbench
-• Salesforce Developer Console & VS Code Extensions
+🎨 CLEAN LIGHT & DARK THEMES
+• Modern interface inspired by the Salesforce Lightning Design System.
+• Quick theme switcher in the header to alternate between Clean Light and Dark modes.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔒 PRIVACY & SECURITY FIRST
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• Strict Domain Isolation: Only executes on authorized Salesforce domains (*.salesforce.com, *.force.com).
-• Zero Remote Telemetry: 100% client-side execution. Your credentials and Salesforce data are NEVER sent to third-party servers.
-• Manifest V3 CSP Hardened: Audited against SOQL injection, XSS, and insecure scripts.
+• Strict Domain Isolation: Only executes within authorized Salesforce domains.
+• 100% Client-Side: Operates entirely in your browser; your credentials and org data are never transmitted to external servers.
+• Manifest V3 Compliant: Fully audited against cross-site scripting and unauthorized data access.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 HOW TO GET STARTED
+💡 GETTING STARTED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. Install SF DataForge from the Chrome Web Store.
-2. Open any tab in your Salesforce org (Lightning or Classic).
-3. Click the SF DataForge extension icon (or open in Chrome Side Panel).
-4. Select your target object, configure your fields, and start generating or cleaning test data!
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 FREQUENTLY SEARCHED KEYWORDS / TAGS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Salesforce, SF, Salesforce Extension, Salesforce Test Data, Salesforce Mock Data, Salesforce Data Generator, Salesforce Data Cleaner, Salesforce Inspector, Salesforce Data Loader, Salesforce Bulk Delete, SOQL, SObject, Lightning Experience, Salesforce Developer, Salesforce Admin, Salesforce QA, Trailhead, Salesforce Tools.
+2. Open any active Salesforce tab in your browser.
+3. Click the SF DataForge extension icon in the toolbar or open it in the Chrome Side Panel.
+4. Choose an object, customize your field rules, and generate or clean your records.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👨‍💻 DEVELOPER & SUPPORT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Developed with precision by Sahil Dholpuria for the global Salesforce community.
+Developed by Sahil Dholpuria for the global Salesforce community.
 ```
 
 ---
