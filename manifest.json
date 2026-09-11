@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SF DataForge - Salesforce Test Data Generator",
   "short_name": "SF DataForge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Sahil Dholpuria",
   "description": "Generate realistic test data for any Salesforce object with full field control, plus bulk data inspection and cleanup.",
   "icons": {
