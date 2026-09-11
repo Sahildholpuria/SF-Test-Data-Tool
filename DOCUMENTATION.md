@@ -30,6 +30,7 @@
    - [Credential Security](#credential-security)
 7. [Installation & Setup Guide](#7-installation--setup-guide)
 8. [Troubleshooting & FAQs](#8-troubleshooting--faqs)
+9. [Releasing Updates & Creating New Packages](#9-releasing-updates--creating-new-packages)
 
 ---
 
@@ -326,3 +327,99 @@ Ensure the project files are located on your local drive:
 
 ### Q: Where do deleted records go?
 **A**: Records deleted via the **Data Cleaner** are sent to your Salesforce **Recycle Bin**, where they remain recoverable for 15 days according to standard Salesforce retention policies.
+
+---
+
+## 9. Releasing Updates & Creating New Packages
+
+This section outlines the standard operating procedure for rolling out new features, bug fixes, and security patches to users via the **Chrome Web Store**.
+
+### 🏷️ Semantic Versioning Strategy
+Follow standard Semantic Versioning (`MAJOR.MINOR.PATCH`):
+- **PATCH** (`1.0.0` → `1.0.1`): Bug fixes, CSS styling updates, small UI tweaks, label adjustments.
+- **MINOR** (`1.0.1` → `1.1.0`): New features, new field generator modes, new export formats, backward-compatible additions.
+- **MAJOR** (`1.1.0` → `2.0.0`): Significant architectural changes or major platform redesigns.
+
+---
+
+### 📦 Step 1: Bump the Version Number
+
+Whenever you prepare a release, update the version in two places:
+
+1. **`manifest.json`** (required by Chrome Web Store):
+   ```json
+   {
+     "manifest_version": 3,
+     "name": "SF DataForge - Salesforce Test Data Generator",
+     "version": "1.0.1",
+     ...
+   }
+   ```
+2. **`popup.html`** (user-facing badge under Settings > About):
+   ```html
+   <span>Version 1.0.1 (Manifest V3)</span>
+   ```
+
+---
+
+### 🔨 Step 2: Build the Production Package
+
+Run the automated packaging script from your terminal:
+
+```bash
+cd "/Users/sahildholpuria/Documents/SF Test Data Tool"
+./scripts/package.sh
+```
+
+#### What `package.sh` Does Automatically:
+1. Reads the current `"version"` string dynamically from `manifest.json`.
+2. Creates the `dist/` output directory if it does not already exist.
+3. Cleans up any prior zip with the same version name.
+4. Strips OS metadata and hidden development files (`.DS_Store`, `__MACOSX`, `.git`).
+5. Packages only the required production files:
+   - `manifest.json`
+   - `background.js`
+   - `popup.html`, `popup.css`, `popup.js`
+   - `icons/` (16, 32, 48, 128px pngs)
+   - `src/` (`generatorEngine.js`, `salesforceService.js`, `storageService.js`)
+6. Produces the final, clean store zip:
+   ```
+   dist/sf-dataforge-v1.0.1.zip
+   ```
+
+---
+
+### 🧪 Step 3: Test the Unpacked Build Locally
+
+Before submitting to Google, test the changes locally:
+1. Open Chrome and navigate to `chrome://extensions`.
+2. Click the **🔄 Refresh** icon on the **SF DataForge** card.
+3. Open an active Salesforce tab.
+4. Verify that:
+   - New features and UI updates render properly.
+   - Version number in **Settings** reflects the new version.
+   - Data generation, picklist exploration, and bulk deletion function without console errors.
+
+---
+
+### 📤 Step 4: Upload to Chrome Web Store Developer Dashboard
+
+1. Navigate to the **[Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)**.
+2. Select your extension: **SF DataForge - Salesforce Test Data Generator**.
+3. In the left navigation menu, click **Package**.
+4. Click the blue **Upload new package** button.
+5. Select your newly generated zip:
+   ```
+   dist/sf-dataforge-v<VERSION>.zip
+   ```
+6. The dashboard will validate the manifest and display the updated version number.
+7. *(Optional)* If you updated store copy, promotional images, or privacy disclosures, navigate to **Store listing** or **Privacy** to make adjustments.
+8. Click **Submit for review** in the top right corner.
+
+---
+
+### ⏳ Step 5: Review & Automatic Rollout
+
+- **Fast Review for Updates**: Minor and patch updates for existing, approved extensions are typically processed rapidly (often within 2 to 24 hours).
+- **Zero Effort for Users**: Once Google approves the update, Chrome automatically pushes the new version to all active installations within a few hours. Users do not need to take any action!
+

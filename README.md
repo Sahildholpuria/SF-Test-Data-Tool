@@ -112,6 +112,21 @@ SF Test Data Tool/
 
 ---
 
+## 📦 Packaging & Releasing Updates
+
+To build a production zip bundle ready for the **Chrome Web Store Developer Dashboard**:
+
+1. Bump `"version"` in [`manifest.json`](manifest.json) and [`popup.html`](popup.html).
+2. Run the packaging script:
+   ```bash
+   ./scripts/package.sh
+   ```
+3. Upload the generated zip file from `dist/sf-dataforge-v<VERSION>.zip` directly to the [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+
+For the complete release lifecycle guide, see [Section 9 in DOCUMENTATION.md](DOCUMENTATION.md#9-releasing-updates--creating-new-packages).
+
+---
+
 ## 📚 Complete Documentation
 
 For detailed technical explanations, address clustering algorithms, picklist explorer guides, and troubleshooting FAQs, see:
