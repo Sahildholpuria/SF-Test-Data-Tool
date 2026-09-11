@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "SF DataForge - Salesforce Test Data Generator",
+  "name": "SF DataForge - Salesforce (SF) Test Data Generator & Cleaner",
   "short_name": "SF DataForge",
   "version": "1.0.1",
   "author": "Sahil Dholpuria",
-  "description": "Generate realistic test data for any Salesforce object with full field control, plus bulk data inspection and cleanup.",
+  "description": "The ultimate Salesforce (SF) extension to generate realistic test data, explore picklists, and bulk-clean records in Lightning.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
