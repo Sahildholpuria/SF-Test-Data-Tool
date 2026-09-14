@@ -430,7 +430,7 @@ class GeneratorEngine {
   /**
    * Generates N records with guaranteed zero duplicates, address consistency, and deep semantic matching
    */
-  static generateRecords(sObjectName, describeInfo, fieldConfigs, count = 1) {
+  static generateRecords(sObjectName, describeInfo, fieldConfigs, count = 1, selectedRecordTypeId = '', availableRecordTypes = []) {
     const records = [];
     const fields = describeInfo.fields || [];
     const fieldMap = new Map(fields.map(f => [f.name, f]));
@@ -480,6 +480,22 @@ class GeneratorEngine {
 
         if (value !== undefined) {
           record[fieldName] = value;
+        }
+      }
+
+      // Inject RecordTypeId if specified
+      if (selectedRecordTypeId) {
+        const rtList = (availableRecordTypes && availableRecordTypes.length > 0)
+          ? availableRecordTypes
+          : (describeInfo && describeInfo.recordTypeInfos ? describeInfo.recordTypeInfos : []);
+
+        if (selectedRecordTypeId === '__RANDOM__' && rtList.length > 0) {
+          const chosenRt = rtList[Math.floor(Math.random() * rtList.length)];
+          if (chosenRt && chosenRt.id) {
+            record.RecordTypeId = chosenRt.id;
+          }
+        } else if (selectedRecordTypeId !== '__RANDOM__') {
+          record.RecordTypeId = selectedRecordTypeId;
         }
       }
 
@@ -617,6 +633,16 @@ class GeneratorEngine {
     }
 
     if (mode === GeneratorEngine.MODES.PICKLIST) {
+      if (fieldMeta.name === 'RecordTypeId') {
+        if (!config.picklistValue) {
+          return undefined; // Let Salesforce assign user's default record type mapping
+        }
+        if (config.picklistValue === '__RANDOM__') {
+          return this.getRandomPicklistValue(fieldMeta);
+        }
+        return config.picklistValue;
+      }
+
       if (config.picklistValue === '__RANDOM__' || !config.picklistValue) {
         // Address picklists (e.g. MailingStateCode) MUST be resolved via coherent address scope
         // rather than picking a random global state like "TA" (Tasmania) for a US address!
@@ -751,7 +777,44 @@ class GeneratorEngine {
 
     // Reference / Lookup
     if (type === 'reference') {
-      return config.referenceId || null;
+      const mode = config.referenceMode || (config.referenceId === '__RANDOM_ORG__' ? 'random_org' : (config.referenceId === '__RANDOM_HISTORY__' ? 'random_history' : 'specific'));
+
+      // Mode: Random from Org pool
+      if (mode === 'random_org' || config.referenceId === '__RANDOM_ORG__') {
+        const pool = config.orgRecordPool || (context && context.lookupPools && context.lookupPools[fieldMeta.name]) || [];
+        if (pool.length > 0) {
+          const picked = this.pickRandom(pool);
+          return typeof picked === 'object' ? (picked.id || picked.Id) : picked;
+        }
+        const histPool = config.historyRecordPool || (context && context.historyLookupPools && context.historyLookupPools[fieldMeta.name]) || [];
+        if (histPool.length > 0) {
+          return this.pickRandom(histPool);
+        }
+        const targetObj = (fieldMeta.referenceTo && fieldMeta.referenceTo[0]) || 'Account';
+        return this.generateMockSalesforceId(targetObj);
+      }
+
+      // Mode: Random from tool history (records created previously in org)
+      if (mode === 'random_history' || config.referenceId === '__RANDOM_HISTORY__') {
+        const histPool = config.historyRecordPool || (context && context.historyLookupPools && context.historyLookupPools[fieldMeta.name]) || [];
+        if (histPool.length > 0) {
+          return this.pickRandom(histPool);
+        }
+        const orgPool = config.orgRecordPool || (context && context.lookupPools && context.lookupPools[fieldMeta.name]) || [];
+        if (orgPool.length > 0) {
+          const picked = this.pickRandom(orgPool);
+          return typeof picked === 'object' ? (picked.id || picked.Id) : picked;
+        }
+        const targetObj = (fieldMeta.referenceTo && fieldMeta.referenceTo[0]) || 'Account';
+        return this.generateMockSalesforceId(targetObj);
+      }
+
+      // Mode: Specific Record ID
+      if (config.referenceId && config.referenceId !== '__NONE__' && config.referenceId !== '__RANDOM_ORG__' && config.referenceId !== '__RANDOM_HISTORY__') {
+        return config.referenceId;
+      }
+
+      return null;
     }
 
     // ID
@@ -1430,6 +1493,119 @@ class GeneratorEngine {
       return isNaN(parsed) ? 0 : parsed;
     }
     return String(val);
+  }
+
+  /**
+   * Generates child records linked to a specific parent record and parentId
+   */
+  static generateChildRecordsForParent(
+    parentSObjectName,
+    parentRecord,
+    parentId,
+    childSObjectName,
+    foreignKeyField = 'AccountId',
+    count = 1,
+    childDescribe = null,
+    customFieldConfigs = null
+  ) {
+    const childRecords = [];
+    const parentName = (parentRecord && (parentRecord.Name || parentRecord.LastName || parentRecord.Company || parentRecord.Subject)) || 'Acme';
+
+    for (let i = 0; i < count; i++) {
+      let record = {};
+
+      if (childSObjectName === 'Contact') {
+        const fName = this.pickRandom(FIRST_NAMES);
+        const lName = this.pickRandom(LAST_NAMES);
+        const domain = (parentRecord && parentRecord.Website)
+          ? parentRecord.Website.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/www\./, '')
+          : 'example.com';
+
+        record = {
+          FirstName: fName,
+          LastName: lName,
+          Email: `${fName.toLowerCase()}.${lName.toLowerCase()}${i > 0 ? (i + 1) : ''}@${domain}`,
+          Phone: `(555) ${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`,
+          Title: this.pickRandom(JOB_TITLES),
+          Department: this.pickRandom(DEPARTMENTS)
+        };
+
+        // If parent has billing address, inherit address into Mailing fields
+        if (parentRecord && parentRecord.BillingStreet) {
+          record.MailingStreet = parentRecord.BillingStreet;
+          record.MailingCity = parentRecord.BillingCity || '';
+          record.MailingState = parentRecord.BillingState || '';
+          record.MailingPostalCode = parentRecord.BillingPostalCode || '';
+          record.MailingCountry = parentRecord.BillingCountry || '';
+        }
+      } else if (childSObjectName === 'Opportunity') {
+        const oppSuffixes = ['Enterprise Expansion', 'Cloud Migration Platform', 'Annual Support Renewal', 'Strategic Integration', 'Q4 Growth Deal'];
+        const closeDate = new Date();
+        closeDate.setDate(closeDate.getDate() + 30 + Math.floor(Math.random() * 60));
+
+        record = {
+          Name: `${parentName} - ${this.pickRandom(oppSuffixes)}${count > 1 ? ` (${i + 1})` : ''}`,
+          StageName: this.pickRandom(['Prospecting', 'Qualification', 'Proposal/Price Quote', 'Negotiation/Review']),
+          CloseDate: closeDate.toISOString().split('T')[0],
+          Amount: (Math.floor(25 + Math.random() * 250) * 1000),
+          Probability: this.pickRandom([20, 50, 75])
+        };
+      } else if (childSObjectName === 'Case') {
+        const caseSubjects = [
+          'Implementation & onboarding assistance',
+          'API authentication webhook inquiry',
+          'Billing schedule adjustment request',
+          'Feature access enablement for QA team',
+          'Data synchronization performance check'
+        ];
+
+        record = {
+          Subject: `${this.pickRandom(caseSubjects)} [${parentName}]`,
+          Status: 'New',
+          Priority: this.pickRandom(['High', 'Medium', 'Low']),
+          Origin: this.pickRandom(['Web', 'Email', 'Phone']),
+          Description: `Test case generated for ${parentName} (${parentId}) by SF DataForge relational graph generator.`
+        };
+      } else if (childSObjectName === 'Task') {
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 7);
+        record = {
+          Subject: this.pickRandom(['Follow-up on product demo', 'Send contract proposal', 'Schedule QBR meeting', 'Technical architecture review']),
+          Status: 'Not Started',
+          Priority: 'Normal',
+          ActivityDate: dueDate.toISOString().split('T')[0]
+        };
+      } else {
+        // Generic or custom child object
+        if (childDescribe && childDescribe.fields) {
+          const autoConfigs = {};
+          childDescribe.fields.forEach(f => {
+            if (f.name !== foreignKeyField && (f.required || customFieldConfigs?.[f.name]?.enabled)) {
+              autoConfigs[f.name] = customFieldConfigs?.[f.name] || {
+                enabled: true,
+                mode: f.type === 'picklist' ? this.MODES.PICKLIST : this.MODES.REALISTIC,
+                picklistValue: '__RANDOM__'
+              };
+            }
+          });
+          const generated = this.generateRecords(childSObjectName, childDescribe, autoConfigs, 1);
+          record = generated[0] || {};
+        } else {
+          record = {
+            Name: `${childSObjectName} for ${parentName} #${i + 1}`
+          };
+        }
+      }
+
+      // Explicitly set the foreign key lookup pointing to parent
+      if (foreignKeyField) {
+        record[foreignKeyField] = parentId;
+      }
+
+      childRecords.push(record);
+    }
+
+    return childRecords;
   }
 }
 

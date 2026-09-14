@@ -15,22 +15,28 @@
    - [Combinatorial Non-Duplicate Engine](#combinatorial-non-duplicate-engine)
    - [Geographic Address Coherence](#geographic-address-coherence)
    - [Picklist Values Explorer & Inline Preview](#picklist-values-explorer--inline-preview)
+   - [Lookup & Reference Relationship Selector & Pool Generator](#lookup--reference-relationship-selector--pool-generator)
    - [Pattern & Formula Tokens](#pattern--formula-tokens)
-4. [Data Cleaner & Bulk Record Deletion](#4-data-cleaner--bulk-record-deletion)
+4. [Advance: Parent-Child Relational Generation](#4-advance-parent-child-relational-generation)
+   - [The QA Pain Point & In-Memory Solution](#the-qa-pain-point--in-memory-solution)
+   - [Master On/Off Relational Toggle](#master-onoff-relational-toggle)
+   - [Auto-Wired Foreign Keys](#auto-wired-foreign-keys)
+   - [Previewing Relational Graph Trees](#previewing-relational-graph-trees)
+5. [Data Cleaner & Bulk Record Deletion](#5-data-cleaner--bulk-record-deletion)
    - [Live Total Org Record Count](#live-total-org-record-count)
    - [Dynamic Display Field Detection](#dynamic-display-field-detection)
    - [SOQL Query Limits & Filter Presets](#soql-query-limits--filter-presets)
    - [Multi-Record Selection & Bulk Delete](#multi-record-selection--bulk-delete)
    - [Recycle Bin Safeguards & Confirmation Modal](#recycle-bin-safeguards--confirmation-modal)
-5. [Presets, Templates & History](#5-presets-templates--history)
-6. [Security & Compliance Architecture](#6-security--compliance-architecture)
+6. [Presets, Templates & History](#6-presets-templates--history)
+7. [Security & Compliance Architecture](#7-security--compliance-architecture)
    - [Domain Isolation & Salesforce-Only Guard](#domain-isolation--salesforce-only-guard)
    - [Manifest V3 CSP Hardening](#manifest-v3-csp-hardening)
    - [SOQL Injection Protections](#soql-injection-protections)
    - [Credential Security](#credential-security)
-7. [Installation & Setup Guide](#7-installation--setup-guide)
-8. [Troubleshooting & FAQs](#8-troubleshooting--faqs)
-9. [Releasing Updates & Creating New Packages](#9-releasing-updates--creating-new-packages)
+8. [Installation & Setup Guide](#8-installation--setup-guide)
+9. [Troubleshooting & FAQs](#9-troubleshooting--faqs)
+10. [Releasing Updates & Creating New Packages](#10-releasing-updates--creating-new-packages)
 
 ---
 
@@ -159,6 +165,28 @@ SF DataForge solves this with a **Metropolitan Cluster Algorithm**:
 
 ---
 
+### Lookup & Reference Relationship Selector & Pool Generator
+Salesforce foreign key relationships (such as `AccountId` on Contact/Opportunity, `ReportsToId`, `ParentId`, or custom lookup fields like `Project__c`) require valid 15 or 18-character Salesforce record IDs. Entering random dummy text causes immediate `INVALID_CROSS_REFERENCE_KEY` insertion errors.
+
+SF DataForge provides an end-to-end Lookup system:
+1. **Live Search Lookup Modal**:
+   - Opens by clicking **"🔍 Lookup [Object]..."** on any reference field.
+   - Performs fast, debounced SOQL search against your Salesforce org (`WHERE Name LIKE '%term%'` or by Record ID).
+   - Intelligently detects standard and custom display fields (`Name`, `Subject`, `CaseNumber`, `Title`, etc.).
+   - Displays real-time matching records with Name, Record ID, and Created Date.
+   - One-click **"Copy ID"** or **"Select"** button to lock in any specific record.
+   - Includes a fallback paste input for direct ID application.
+2. **🎲 Random from Org Pool**:
+   - Select the **"🎲 Random Org"** quick pill or click **"🎲 Random from Org Pool"** inside the modal.
+   - Before generation, SF DataForge automatically queries recent records from the referenced object in your Salesforce org and distributes them randomly across each generated record.
+3. **📦 Random from Tool History**:
+   - If previous batches in SF DataForge created records for the referenced object, the tool automatically retrieves those IDs from extension storage.
+   - Distributes previously generated parent records as foreign keys to newly created child records without touching manual copy-paste!
+4. **Polymorphic Lookup Support**:
+   - For polymorphic reference fields (such as `WhatId` or `WhoId` on Task / Event), provides a dropdown switch to choose which parent object to search and bind.
+
+---
+
 ### Pattern & Formula Tokens
 When choosing **Pattern / Formula** mode for a field, dynamic template interpolation is supported:
 
@@ -180,7 +208,40 @@ QA-{{batch}}-{{random:4}}
 
 ---
 
-## 4. Data Cleaner & Bulk Record Deletion
+## 4. Advance: Parent-Child Relational Generation
+
+The **Advance** tab brings true enterprise relational data generation to Salesforce QA and development workflows. Located directly adjacent to the **History** tab in the navigation bar (`Generator` | `Data Cleaner` | `Templates` | `Advance` | `History` | `Settings`), this feature eliminates the time-consuming manual effort required to link multiple objects together.
+
+### The QA Pain Point & In-Memory Solution
+In Salesforce, creating an Account alone is rarely enough. A QA engineer usually needs an Account with 2 linked Contacts, 1 Opportunity, and 1 Case. Previously, they had to create the Account, copy its `001...` ID, create Contacts, paste the ID into `AccountId`, and repeat.
+
+**SF DataForge solves this in a single click**:
+1. Creates the parent records (e.g. Accounts) via the Salesforce REST API.
+2. Captures the newly returned Salesforce IDs directly in memory.
+3. Automatically populates foreign keys (e.g. `AccountId`) on child records (Contacts, Opportunities, Cases).
+4. Inserts all linked child records in sequence, establishing an entire relational graph in seconds!
+
+### Master On/Off Relational Toggle
+The Advance view includes a dedicated, highly accessible **Master ON/OFF Switch**:
+- **Interactive Switch & Status Badge**: Quickly enable or disable relational generation. When active, an `Active ⚡` badge displays with full access to parent count, target SObject, and child configuration.
+- **Graceful Disabled Standby State**: When turned off, the badge displays `Turned Off ⏸️`, child generation is paused, and a sleek standby card appears with a 1-click **"Turn On Relational Generator"** button.
+- **Cross-Session Persistence**: Your toggle preference is automatically stored in `chrome.storage.local` and seamlessly preserved across popup openings and Side Panel sessions.
+- **Safety Guards**: Previewing and generating in the Advance view are guarded against accidental clicks when turned off, prompting the user with an intuitive toast notification.
+
+### Auto-Wired Foreign Keys
+SF DataForge automatically inspects the target object's describe schema (`childRelationships`) to identify standard and custom foreign key lookups:
+- `Account` ➔ `Contact` (`AccountId`)
+- `Account` ➔ `Opportunity` (`AccountId`)
+- `Account` ➔ `Case` (`AccountId`)
+- Supports dynamic child row addition and customized child counts per parent.
+
+### Previewing Relational Graph Trees
+- Click **Preview Relational Tree** to inspect parent records and child hierarchies side-by-side before inserting into Salesforce.
+- Dual-tab preview modal allows toggling between 🏢 **Parent Records** and 🔗 **Related Child Records** with simulated foreign keys auto-populated.
+
+---
+
+## 5. Data Cleaner & Bulk Record Deletion
 
 The **Data Cleaner** tab provides comprehensive tools to inspect and clean records directly from Salesforce.
 
@@ -242,7 +303,7 @@ Before any record is deleted, a danger-themed modal prompts for explicit confirm
 
 ---
 
-## 5. Presets, Templates & History
+## 6. Presets, Templates & History
 
 ### Presets & Templates
 - Save any customized field mapping, custom formulas, and selected picklist values as a named preset (e.g. *"SLA Enterprise Accounts"*, *"QA Lead Batch"*).
@@ -257,7 +318,7 @@ Before any record is deleted, a danger-themed modal prompts for explicit confirm
 
 ---
 
-## 6. Security & Compliance Architecture
+## 7. Security & Compliance Architecture
 
 SF DataForge has undergone a rigorous security audit and is engineered to adhere to strict enterprise security standards:
 
@@ -286,7 +347,7 @@ SF DataForge has undergone a rigorous security audit and is engineered to adhere
 
 ---
 
-## 7. Installation & Setup Guide
+## 8. Installation & Setup Guide
 
 ### Step 1: Download or Clone the Repository
 Ensure the project files are located on your local drive:
@@ -311,7 +372,7 @@ Ensure the project files are located on your local drive:
 
 ---
 
-## 8. Troubleshooting & FAQs
+## 9. Troubleshooting & FAQs
 
 ### Q: Why do I see "Session expired or invalid (HTTP 401)"?
 **A**: Your Salesforce tab session may have timed out, or your organization may enforce *"Lock sessions to IP"*.
@@ -330,7 +391,7 @@ Ensure the project files are located on your local drive:
 
 ---
 
-## 9. Releasing Updates & Creating New Packages
+## 10. Releasing Updates & Creating New Packages
 
 This section outlines the standard operating procedure for rolling out new features, bug fixes, and security patches to users via the **Chrome Web Store**.
 

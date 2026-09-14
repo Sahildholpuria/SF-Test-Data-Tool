@@ -20,7 +20,13 @@ A modern, high-performance **Manifest V3 Chrome Extension** designed for Salesfo
 - **Direct Salesforce Insertion**: Batches records using Salesforce's Composite SObject Collections REST API (`POST /services/data/v60.0/composite/sobjects`) with live progress and clickable record links.
 - **Data Export**: Export generated datasets as **CSV** (Salesforce Data Loader ready) or **JSON**.
 
-### 2. 🧹 Data Cleaner & Bulk Record Deletion
+### 2. 🔗 Parent-Child Relational Generation
+- **Deep Relational Graphs**: Generates parent records (e.g. Accounts) and linked child records (e.g. 2 Contacts, 1 Opportunity, and 1 Case per Account) in a single click.
+- **In-Memory Foreign Key Auto-Wiring**: Returned parent IDs are captured in memory and immediately populated into child lookup fields (`AccountId`) with zero manual copy-pasting.
+- **Master On/Off Feature Toggle**: Easily turn Relational Generation ON or OFF anytime in the Advance tab (positioned right near History: `Generator` | `Data Cleaner` | `Templates` | `Advance` | `History` | `Settings`).
+- **Interactive Relational Tree Preview**: Dual-tab preview modal to inspect parent and child hierarchies with simulated IDs before org insertion.
+
+### 3. 🧹 Data Cleaner & Bulk Record Deletion
 - **Live Total in Org**: Real-time SOQL count badge (`SELECT count() FROM Object`) displaying the total number of records currently in Salesforce.
 - **Dynamic Display Fields**: Automatically identifies the primary label field (`Name`, `CaseNumber`, `Subject`, `Title`, `DeveloperName`, etc.) for any object.
 - **Flexible Multi-Record Selection**: Select records individually, by filter, or all together via the tri-state header checkbox.
@@ -28,7 +34,7 @@ A modern, high-performance **Manifest V3 Chrome Extension** designed for Salesfo
 - **Composite Batch Delete**: Moves records in batches of up to 200 to the Salesforce **Recycle Bin** via the Composite API.
 - **Confirmation Safeguards**: Danger-themed confirmation modal with record count warnings and cascading delete reminders.
 
-### 3. 🛡️ Enterprise Security & Strict Domain Isolation
+### 4. 🛡️ Enterprise Security & Strict Domain Isolation
 - **Salesforce-Only Barrier**: Active tab verification restricts execution exclusively to Salesforce domains (`*.salesforce.com`, `*.force.com`, `*.site.com`, etc.).
 - **Multi-Tab Org Detection**: Automatically detects open Salesforce tabs across other windows with 1-click switching.
 - **Manifest V3 CSP Hardened**: Zero inline event handlers (`onclick`), fully strict Content Security Policy, and defensive DOM escaping.

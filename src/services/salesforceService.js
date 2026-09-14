@@ -232,12 +232,57 @@ class SalesforceService {
           return a.label.localeCompare(b.label);
         });
 
+        const childRelationships = (describe.childRelationships || [])
+          .filter(cr => !cr.deprecatedAndHidden && cr.relationshipName && cr.childSObject && cr.field)
+          .map(cr => ({
+            childSObject: cr.childSObject,
+            field: cr.field,
+            relationshipName: cr.relationshipName,
+            cascadeDelete: !!cr.cascadeDelete
+          }));
+
+        const recordTypeInfos = (describe.recordTypeInfos || [])
+          .filter(rt => rt.active && rt.available && !rt.master)
+          .map(rt => ({
+            id: rt.recordTypeId,
+            name: rt.name,
+            developerName: rt.developerName,
+            isDefault: !!rt.defaultRecordTypeMapping
+          }));
+
+        if (recordTypeInfos.length > 1) {
+          const rtPicklistValues = recordTypeInfos.map(rt => ({
+            label: rt.name,
+            value: rt.id,
+            active: true,
+            defaultValue: !!rt.isDefault
+          }));
+
+          const existingRtField = fields.find(f => f.name === 'RecordTypeId');
+          if (existingRtField) {
+            existingRtField.type = 'picklist';
+            existingRtField.label = 'Record Type';
+            existingRtField.picklistValues = rtPicklistValues;
+          } else {
+            fields.unshift({
+              name: 'RecordTypeId',
+              label: 'Record Type',
+              type: 'picklist',
+              required: false,
+              createable: true,
+              picklistValues: rtPicklistValues
+            });
+          }
+        }
+
         return {
           name: describe.name,
           label: describe.label,
           custom: describe.custom,
           keyPrefix: describe.keyPrefix,
-          fields
+          fields,
+          childRelationships,
+          recordTypeInfos
         };
       }
 
@@ -334,6 +379,168 @@ class SalesforceService {
       successCount: totalSuccess,
       failureCount: totalFailed,
       results
+    };
+  }
+
+  /**
+   * Chained Composite Insertion for Relational Data Graph:
+   * 1. Inserts parent records via composite API
+   * 2. Captures generated parent IDs
+   * 3. For each parent ID and each child configuration:
+   *    - Generates child records with foreignKey populated (e.g. AccountId: parentId)
+   *    - Inserts child records in batch via composite API
+   * 4. Reports multi-stage progress and returns structured graph result
+   */
+  async insertRelationalGraph(parentSObject, parentRecords, childConfigs, onProgress = () => {}) {
+    const activeChildConfigs = (childConfigs || []).filter(c => c.enabled && (parseInt(c.count, 10) || 0) > 0);
+    const totalSteps = 1 + activeChildConfigs.length;
+
+    // Stage 1: Insert Parent Records
+    onProgress({
+      phase: 'parent',
+      step: 1,
+      totalSteps,
+      message: `Step 1/${totalSteps}: Creating ${parentRecords.length} ${parentSObject} parent records...`,
+      percentage: Math.round((1 / (totalSteps + 1)) * 100)
+    });
+
+    const parentResult = await this.insertRecords(parentSObject, parentRecords);
+
+    // Extract successful parent records with their new IDs
+    const createdParents = [];
+    parentResult.results.forEach((res, idx) => {
+      if (res.success && res.id) {
+        createdParents.push({
+          id: res.id,
+          record: parentRecords[idx],
+          index: idx
+        });
+      }
+    });
+
+    if (createdParents.length === 0) {
+      return {
+        parentSObject,
+        parentResult,
+        childResults: [],
+        totalRecords: parentRecords.length,
+        successCount: 0,
+        failureCount: parentResult.failureCount,
+        createdHierarchy: []
+      };
+    }
+
+    let currentStep = 1;
+    const childResults = [];
+    let totalChildSuccess = 0;
+    let totalChildFailure = 0;
+
+    // Hierarchy map: parentId -> { parentId, parentRecord, children: { [childSObject]: [records] } }
+    const hierarchyMap = new Map();
+    createdParents.forEach(p => {
+      hierarchyMap.set(p.id, {
+        parentId: p.id,
+        parentRecord: p.record,
+        children: {}
+      });
+    });
+
+    for (const childConf of activeChildConfigs) {
+      currentStep++;
+      const childSObject = childConf.sObject;
+      const countPerParent = parseInt(childConf.count, 10) || 1;
+      const totalChildRecords = createdParents.length * countPerParent;
+      const foreignKey = childConf.foreignKey || 'AccountId';
+
+      onProgress({
+        phase: 'children',
+        childSObject,
+        step: currentStep,
+        totalSteps,
+        message: `Step ${currentStep}/${totalSteps}: Generating & inserting ${totalChildRecords} ${childConf.label || childSObject} records...`,
+        percentage: Math.round((currentStep / (totalSteps + 1)) * 100)
+      });
+
+      // Generate child records for each parent
+      const batchChildRecords = [];
+      const parentTracking = [];
+
+      for (const parent of createdParents) {
+        const childRecordsForThisParent = (typeof GeneratorEngine !== 'undefined' && GeneratorEngine.generateChildRecordsForParent)
+          ? GeneratorEngine.generateChildRecordsForParent(
+              parentSObject,
+              parent.record,
+              parent.id,
+              childSObject,
+              foreignKey,
+              countPerParent,
+              childConf.describeInfo,
+              childConf.fieldConfigs
+            )
+          : [];
+
+        childRecordsForThisParent.forEach(rec => {
+          batchChildRecords.push(rec);
+          parentTracking.push(parent.id);
+        });
+      }
+
+      // Batch insert the child records
+      let insertResult;
+      if (batchChildRecords.length > 0) {
+        insertResult = await this.insertRecords(childSObject, batchChildRecords);
+      } else {
+        insertResult = { total: 0, successCount: 0, failureCount: 0, results: [] };
+      }
+
+      totalChildSuccess += insertResult.successCount;
+      totalChildFailure += insertResult.failureCount;
+
+      // Group created children under their corresponding parent
+      insertResult.results.forEach((res, idx) => {
+        const pId = parentTracking[idx];
+        const pNode = hierarchyMap.get(pId);
+        if (pNode) {
+          if (!pNode.children[childSObject]) {
+            pNode.children[childSObject] = [];
+          }
+          pNode.children[childSObject].push({
+            success: res.success,
+            id: res.id,
+            errorMessage: res.errorMessage,
+            record: batchChildRecords[idx]
+          });
+        }
+      });
+
+      childResults.push({
+        sObject: childSObject,
+        label: childConf.label || childSObject,
+        foreignKey,
+        countPerParent,
+        totalGenerated: totalChildRecords,
+        successCount: insertResult.successCount,
+        failureCount: insertResult.failureCount,
+        results: insertResult.results
+      });
+    }
+
+    onProgress({
+      phase: 'complete',
+      step: totalSteps,
+      totalSteps,
+      message: `Completed! Created ${parentResult.successCount} ${parentSObject} records and ${totalChildSuccess} linked child records.`,
+      percentage: 100
+    });
+
+    return {
+      parentSObject,
+      parentResult,
+      childResults,
+      totalRecords: parentRecords.length + (totalChildSuccess + totalChildFailure),
+      successCount: parentResult.successCount + totalChildSuccess,
+      failureCount: parentResult.failureCount + totalChildFailure,
+      createdHierarchy: Array.from(hierarchyMap.values())
     };
   }
 
@@ -535,6 +742,198 @@ class SalesforceService {
       successCount: totalSuccess,
       failureCount: totalFailed,
       results
+    };
+  }
+
+  /**
+   * Search records of a given SObject for Lookup / Reference selection
+   */
+  async searchLookupRecords(sObjectName, searchTerm = '', limit = 25) {
+    if (this.isMockMode) {
+      return this.getMockLookupRecords(sObjectName, searchTerm, limit);
+    }
+    if (!this.sessionId) {
+      throw new Error('No active Salesforce session available.');
+    }
+    if (!sObjectName || !/^[a-zA-Z0-9_]+$/.test(sObjectName)) {
+      throw new Error('Invalid SObject name format.');
+    }
+
+    const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 25, 5), 100);
+
+    // 1. Determine best display name field
+    const STANDARD_NAME_FIELDS = {
+      Case: 'CaseNumber',
+      Contract: 'ContractNumber',
+      Solution: 'SolutionName',
+      Order: 'OrderNumber',
+      Task: 'Subject',
+      Event: 'Subject',
+      User: 'Name'
+    };
+
+    let nameField = STANDARD_NAME_FIELDS[sObjectName] || 'Name';
+    try {
+      const desc = await this.describeSObject(sObjectName);
+      const fields = (desc && desc.fields) || [];
+      const fieldNames = new Set(fields.map(f => f.name));
+
+      const candidates = ['Name', 'Subject', 'CaseNumber', 'Title', 'DeveloperName', 'Username', 'ContractNumber', 'SolutionName', 'Id'];
+      for (const cand of candidates) {
+        if (fieldNames.has(cand)) {
+          nameField = cand;
+          break;
+        }
+      }
+    } catch (e) {
+      nameField = STANDARD_NAME_FIELDS[sObjectName] || 'Name';
+    }
+
+    // 2. Build query defensively
+    const selectFields = nameField === 'Id' ? 'Id, CreatedDate' : `Id, ${nameField}, CreatedDate`;
+    let whereClause = '';
+    const trimmedTerm = (searchTerm || '').trim();
+
+    if (trimmedTerm) {
+      const escaped = trimmedTerm.replace(/'/g, "\\'");
+      if (/^[a-zA-Z0-9]{15,18}$/.test(trimmedTerm)) {
+        whereClause = (nameField !== 'Id')
+          ? ` WHERE Id = '${escaped}' OR ${nameField} LIKE '%${escaped}%'`
+          : ` WHERE Id = '${escaped}'`;
+      } else if (nameField !== 'Id') {
+        whereClause = ` WHERE ${nameField} LIKE '%${escaped}%'`;
+      }
+    }
+
+    let soql = `SELECT ${selectFields} FROM ${sObjectName}${whereClause} ORDER BY CreatedDate DESC LIMIT ${safeLimit}`;
+    let url = `${this.instanceUrl}/services/data/${this.apiVersion}/query/?q=${encodeURIComponent(soql)}`;
+
+    let res = await this.executeFetch(url);
+    if (!res.ok) {
+      // Fallback 1: Try without ORDER BY CreatedDate
+      const fallbackSoql = `SELECT ${selectFields} FROM ${sObjectName}${whereClause} LIMIT ${safeLimit}`;
+      const fallbackUrl = `${this.instanceUrl}/services/data/${this.apiVersion}/query/?q=${encodeURIComponent(fallbackSoql)}`;
+      const fallbackRes = await this.executeFetch(fallbackUrl);
+      if (fallbackRes.ok) {
+        res = fallbackRes;
+      } else {
+        // Fallback 2: Try minimal SELECT Id
+        const minSoql = `SELECT Id FROM ${sObjectName}${whereClause} LIMIT ${safeLimit}`;
+        const minUrl = `${this.instanceUrl}/services/data/${this.apiVersion}/query/?q=${encodeURIComponent(minSoql)}`;
+        const minRes = await this.executeFetch(minUrl);
+        if (minRes.ok) {
+          res = minRes;
+          nameField = 'Id';
+        } else {
+          const errMsg = res.data && res.data[0] ? res.data[0].message : (res.error || `HTTP ${res.status}`);
+          throw new Error(`Failed to query lookup records: ${errMsg}`);
+        }
+      }
+    }
+
+    const records = (res.data && res.data.records) || [];
+    return {
+      sObjectName,
+      nameField,
+      records: records.map(r => ({
+        id: r.Id,
+        name: r[nameField] || r.Id,
+        createdDate: r.CreatedDate ? new Date(r.CreatedDate).toLocaleDateString() : ''
+      })),
+      totalCount: res.data.totalSize || records.length
+    };
+  }
+
+  /**
+   * Fetch recent/random record IDs from org for random assignment
+   */
+  async getRandomLookupIds(sObjectName, count = 50) {
+    if (this.isMockMode) {
+      const mock = this.getMockLookupRecords(sObjectName, '', count);
+      return mock.records.map(r => r.id);
+    }
+    if (!this.sessionId || !sObjectName || !/^[a-zA-Z0-9_]+$/.test(sObjectName)) {
+      return [];
+    }
+
+    try {
+      const limit = Math.min(Math.max(parseInt(count, 10) || 50, 10), 200);
+      const soql = `SELECT Id FROM ${sObjectName} ORDER BY CreatedDate DESC LIMIT ${limit}`;
+      const url = `${this.instanceUrl}/services/data/${this.apiVersion}/query/?q=${encodeURIComponent(soql)}`;
+      const res = await this.executeFetch(url);
+
+      if (res.ok && res.data && Array.isArray(res.data.records)) {
+        const ids = res.data.records.map(r => r.Id);
+        // Shuffle ids
+        for (let i = ids.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [ids[i], ids[j]] = [ids[j], ids[i]];
+        }
+        return ids.slice(0, count);
+      }
+      return [];
+    } catch (e) {
+      console.warn(`getRandomLookupIds failed for ${sObjectName}:`, e);
+      return [];
+    }
+  }
+
+  /**
+   * Mock lookup records for demo/offline mode
+   */
+  getMockLookupRecords(sObjectName, searchTerm = '', limit = 25) {
+    const mockData = {
+      Account: [
+        { name: 'Apex Global Technologies', id: '0018000001AbCdEFG1', createdDate: 'Today' },
+        { name: 'Nova Cloud Matrix Corp', id: '0018000002XyZwTUV2', createdDate: 'Yesterday' },
+        { name: 'Starlight Dynamics LLC', id: '0018000003StArLtH3', createdDate: 'Sep 10, 2026' },
+        { name: 'Quantum Peak Enterprises', id: '0018000004QpEnTrP4', createdDate: 'Sep 08, 2026' },
+        { name: 'Horizon BioPharma Systems', id: '0018000005HzBioPh5', createdDate: 'Sep 05, 2026' },
+        { name: 'Vanguard Software Labs', id: '0018000006VgSwLab6', createdDate: 'Sep 01, 2026' }
+      ],
+      Contact: [
+        { name: 'Sarah Jenkins', id: '0038000001SrJnkns1', createdDate: 'Today' },
+        { name: 'Michael Scott', id: '0038000002MchSctt2', createdDate: 'Yesterday' },
+        { name: 'Elena Rostova', id: '0038000003ElnRstv3', createdDate: 'Sep 11, 2026' },
+        { name: 'David Wallace', id: '0038000004DvdWllc4', createdDate: 'Sep 09, 2026' },
+        { name: 'James Henderson', id: '0038000005JmsHndr5', createdDate: 'Sep 07, 2026' }
+      ],
+      Opportunity: [
+        { name: 'Acme Cloud Platform Expansion - $125k', id: '0068000001AcmePlt1', createdDate: 'Today' },
+        { name: 'Nova Enterprise Migration - $450k', id: '0068000002NvEntMg2', createdDate: 'Yesterday' },
+        { name: 'Q4 Global Software Renewal - $85k', id: '0068000003Q4GlbRn3', createdDate: 'Sep 10, 2026' }
+      ],
+      User: [
+        { name: 'System Administrator', id: '0058000001SysAdmn1', createdDate: 'Active' },
+        { name: 'Integration QA User', id: '0058000002IntQAUs2', createdDate: 'Active' },
+        { name: 'Sarah Test Admin', id: '0058000003SrhTstA3', createdDate: 'Active' }
+      ],
+      Case: [
+        { name: 'API Authentication Webhook Inquiry', id: '5008000001ApiAuth1', createdDate: 'Today' },
+        { name: 'SSO Certificate Renewal Request', id: '5008000002SsoCert2', createdDate: 'Yesterday' }
+      ]
+    };
+
+    const prefixMap = { Account: '001', Contact: '003', Lead: '00Q', Opportunity: '006', Case: '500', User: '005' };
+    const pfx = prefixMap[sObjectName] || '001';
+
+    let list = mockData[sObjectName] || [
+      { name: `${sObjectName} Sample Alpha`, id: `${pfx}000000000001AAA`, createdDate: 'Today' },
+      { name: `${sObjectName} Sample Beta`, id: `${pfx}000000000002BBB`, createdDate: 'Yesterday' },
+      { name: `${sObjectName} Sample Gamma`, id: `${pfx}000000000003CCC`, createdDate: 'Sep 08, 2026' }
+    ];
+
+    if (searchTerm && searchTerm.trim()) {
+      const q = searchTerm.trim().toLowerCase();
+      list = list.filter(item => item.name.toLowerCase().includes(q) || item.id.toLowerCase().includes(q));
+    }
+
+    const safeLimit = Math.min(parseInt(limit, 10) || 25, 50);
+    return {
+      sObjectName,
+      nameField: 'Name',
+      records: list.slice(0, safeLimit),
+      totalCount: list.length
     };
   }
 
@@ -749,6 +1148,16 @@ class SalesforceService {
         label: 'Account',
         custom: false,
         keyPrefix: '001',
+        recordTypeInfos: [
+          { id: '0125g000001AAA1', name: 'Customer - Direct', developerName: 'Customer_Direct', isDefault: true },
+          { id: '0125g000001AAA2', name: 'Partner / Channel', developerName: 'Partner_Channel', isDefault: false },
+          { id: '0125g000001AAA3', name: 'Internal Account', developerName: 'Internal_Account', isDefault: false }
+        ],
+        childRelationships: [
+          { childSObject: 'Contact', field: 'AccountId', relationshipName: 'Contacts', label: 'Contacts', defaultCount: 2 },
+          { childSObject: 'Opportunity', field: 'AccountId', relationshipName: 'Opportunities', label: 'Opportunities', defaultCount: 1 },
+          { childSObject: 'Case', field: 'AccountId', relationshipName: 'Cases', label: 'Cases', defaultCount: 1 }
+        ],
         fields: [
           { name: 'Name', label: 'Account Name', type: 'string', length: 255, required: true, createable: true },
           { name: 'Type', label: 'Type', type: 'picklist', required: false, createable: true, picklistValues: [{ label: 'Prospect', value: 'Prospect' }, { label: 'Customer - Direct', value: 'Customer - Direct' }, { label: 'Customer - Channel', value: 'Customer - Channel' }, { label: 'Partner', value: 'Partner' }] },
@@ -777,6 +1186,10 @@ class SalesforceService {
         label: 'Contact',
         custom: false,
         keyPrefix: '003',
+        recordTypeInfos: [],
+        childRelationships: [
+          { childSObject: 'Case', field: 'ContactId', relationshipName: 'Cases', label: 'Cases', defaultCount: 1 }
+        ],
         fields: [
           { name: 'LastName', label: 'Last Name', type: 'string', length: 80, required: true, createable: true },
           { name: 'FirstName', label: 'First Name', type: 'string', length: 40, required: false, createable: true },
@@ -803,8 +1216,14 @@ class SalesforceService {
         label: 'Opportunity',
         custom: false,
         keyPrefix: '006',
+        recordTypeInfos: [
+          { id: '0125g000002BBB1', name: 'New Business', developerName: 'New_Business', isDefault: true },
+          { id: '0125g000002BBB2', name: 'Existing Customer - Upgrade', developerName: 'Existing_Upgrade', isDefault: false }
+        ],
+        childRelationships: [],
         fields: [
           { name: 'Name', label: 'Opportunity Name', type: 'string', length: 120, required: true, createable: true },
+          { name: 'AccountId', label: 'Account ID', type: 'reference', referenceTo: ['Account'], required: false, createable: true },
           { name: 'StageName', label: 'Stage', type: 'picklist', required: true, createable: true, picklistValues: [{ label: 'Prospecting', value: 'Prospecting' }, { label: 'Qualification', value: 'Qualification' }, { label: 'Proposal/Price Quote', value: 'Proposal/Price Quote' }, { label: 'Negotiation/Review', value: 'Negotiation/Review' }, { label: 'Closed Won', value: 'Closed Won' }, { label: 'Closed Lost', value: 'Closed Lost' }] },
           { name: 'CloseDate', label: 'Close Date', type: 'date', required: true, createable: true },
           { name: 'Amount', label: 'Amount', type: 'currency', precision: 18, scale: 2, required: false, createable: true },
@@ -818,6 +1237,8 @@ class SalesforceService {
         label: 'Lead',
         custom: false,
         keyPrefix: '00Q',
+        recordTypeInfos: [],
+        childRelationships: [],
         fields: [
           { name: 'LastName', label: 'Last Name', type: 'string', length: 80, required: true, createable: true },
           { name: 'Company', label: 'Company', type: 'string', length: 255, required: true, createable: true },
@@ -839,8 +1260,15 @@ class SalesforceService {
         label: 'Case',
         custom: false,
         keyPrefix: '500',
+        recordTypeInfos: [
+          { id: '0125g000003CCC1', name: 'Customer Support', developerName: 'Customer_Support', isDefault: true },
+          { id: '0125g000003CCC2', name: 'Billing Inquiry', developerName: 'Billing_Inquiry', isDefault: false }
+        ],
+        childRelationships: [],
         fields: [
           { name: 'Subject', label: 'Subject', type: 'string', length: 255, required: false, createable: true },
+          { name: 'AccountId', label: 'Account ID', type: 'reference', referenceTo: ['Account'], required: false, createable: true },
+          { name: 'ContactId', label: 'Contact ID', type: 'reference', referenceTo: ['Contact'], required: false, createable: true },
           { name: 'Status', label: 'Status', type: 'picklist', required: true, createable: true, picklistValues: [{ label: 'New', value: 'New' }, { label: 'Working', value: 'Working' }, { label: 'Escalated', value: 'Escalated' }, { label: 'Closed', value: 'Closed' }] },
           { name: 'Priority', label: 'Priority', type: 'picklist', required: false, createable: true, picklistValues: [{ label: 'High', value: 'High' }, { label: 'Medium', value: 'Medium' }, { label: 'Low', value: 'Low' }] },
           { name: 'Origin', label: 'Case Origin', type: 'picklist', required: false, createable: true, picklistValues: [{ label: 'Web', value: 'Web' }, { label: 'Email', value: 'Email' }, { label: 'Phone', value: 'Phone' }] },
@@ -853,6 +1281,8 @@ class SalesforceService {
         label: 'Project',
         custom: true,
         keyPrefix: 'a01',
+        recordTypeInfos: [],
+        childRelationships: [],
         fields: [
           { name: 'Name', label: 'Project Name', type: 'string', length: 80, required: true, createable: true },
           { name: 'Status__c', label: 'Project Status', type: 'picklist', required: true, createable: true, custom: true, picklistValues: [{ label: 'Planning', value: 'Planning' }, { label: 'In Progress', value: 'In Progress' }, { label: 'Completed', value: 'Completed' }, { label: 'On Hold', value: 'On Hold' }] },
@@ -864,15 +1294,13 @@ class SalesforceService {
       }
     };
 
-    if (mockSchemas[sObjectName]) {
-      return mockSchemas[sObjectName];
-    }
-
-    return {
+    const schema = mockSchemas[sObjectName] || {
       name: sObjectName,
       label: sObjectName.replace('__c', '').replace(/_/g, ' '),
       custom: sObjectName.endsWith('__c'),
       keyPrefix: 'a99',
+      recordTypeInfos: [],
+      childRelationships: [],
       fields: [
         { name: 'Name', label: `${sObjectName} Name`, type: 'string', length: 80, required: true, createable: true },
         { name: 'Description__c', label: 'Description', type: 'textarea', length: 1000, required: false, createable: true, custom: true },
@@ -881,10 +1309,39 @@ class SalesforceService {
         { name: 'Date__c', label: 'Date', type: 'date', required: false, createable: true, custom: true }
       ]
     };
+
+    if (schema.recordTypeInfos && schema.recordTypeInfos.length > 1) {
+      const rtPicklistValues = schema.recordTypeInfos.map(rt => ({
+        label: rt.name,
+        value: rt.id,
+        active: true,
+        defaultValue: !!rt.isDefault
+      }));
+
+      const existingRtField = schema.fields.find(f => f.name === 'RecordTypeId');
+      if (existingRtField) {
+        existingRtField.type = 'picklist';
+        existingRtField.label = 'Record Type';
+        existingRtField.picklistValues = rtPicklistValues;
+      } else {
+        schema.fields.unshift({
+          name: 'RecordTypeId',
+          label: 'Record Type',
+          type: 'picklist',
+          required: false,
+          createable: true,
+          picklistValues: rtPicklistValues
+        });
+      }
+    }
+
+    return schema;
   }
 
   async simulateMockInsert(sObjectName, records) {
-    await new Promise(r => setTimeout(r, 600));
+    if (typeof setTimeout !== 'undefined') {
+      await new Promise(r => setTimeout(r, 400));
+    }
 
     const prefixMap = {
       Account: '001',

@@ -20,6 +20,7 @@ zip -r "$ZIP_NAME" \
   manifest.json \
   background.js \
   popup.html \
+  sidepanel.html \
   popup.css \
   popup.js \
   icons/ \

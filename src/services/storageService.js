@@ -120,6 +120,21 @@ class StorageService {
     return true;
   }
 
+  static async getCreatedIdsForObject(sObjectName) {
+    const history = await this.getHistory();
+    const ids = [];
+    for (const entry of history) {
+      if (entry.objectName === sObjectName && Array.isArray(entry.createdIds)) {
+        for (const id of entry.createdIds) {
+          if (id && typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test(id.trim()) && !ids.includes(id.trim())) {
+            ids.push(id.trim());
+          }
+        }
+      }
+    }
+    return ids;
+  }
+
   // --- SETTINGS ---
 
   static async getSettings() {
