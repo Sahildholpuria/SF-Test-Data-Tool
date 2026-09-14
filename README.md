@@ -1,5 +1,6 @@
 # ⚡ SF DataForge — Salesforce Test Data Generator & Data Cleaner
 
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)]()
 [![Chrome Manifest V3](https://img.shields.io/badge/Chrome_Extension-Manifest_V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![Salesforce API](https://img.shields.io/badge/Salesforce_REST_API-v60.0-00A1E0?logo=salesforce&logoColor=white)](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_what_is_rest_api.htm)
 [![Zero Duplicates](https://img.shields.io/badge/Generation_Engine-Zero_Duplicates-059669?logo=checkmarx&logoColor=white)]()
@@ -17,16 +18,21 @@ A modern, high-performance **Manifest V3 Chrome Extension** designed for Salesfo
 - **Deep Semantic Field Recognition**: Analyzes field API names and labels to generate context-perfect data (e.g. enterprise revenue, adult birthdates, future close dates, tax IDs, SIC codes).
 - **Interactive Picklist Values Explorer**: Inspect active picklist values from your org, preview choices as clickable inline pills, and filter values with 1 click.
 - **Geographic Address Coherence**: Generates matching physical addresses across 20 major US metropolitan areas with valid 5-digit ZIP codes and ISO state/country codes (`CA`, `NY`, `TX`, `US`), completely eliminating `FIELD_INTEGRITY_EXCEPTION` errors.
+- **Record Types Auto-Discovery**: Automatically recognizes objects with multiple active record types and allows targeting specific record types.
 - **Direct Salesforce Insertion**: Batches records using Salesforce's Composite SObject Collections REST API (`POST /services/data/v60.0/composite/sobjects`) with live progress and clickable record links.
 - **Data Export**: Export generated datasets as **CSV** (Salesforce Data Loader ready) or **JSON**.
 
-### 2. 🔗 Parent-Child Relational Generation
+### 2. 🚀 Advance: Parent-Child Relational Generation
 - **Deep Relational Graphs**: Generates parent records (e.g. Accounts) and linked child records (e.g. 2 Contacts, 1 Opportunity, and 1 Case per Account) in a single click.
 - **In-Memory Foreign Key Auto-Wiring**: Returned parent IDs are captured in memory and immediately populated into child lookup fields (`AccountId`) with zero manual copy-pasting.
 - **Master On/Off Feature Toggle**: Easily turn Relational Generation ON or OFF anytime in the Advance tab (positioned right near History: `Generator` | `Data Cleaner` | `Templates` | `Advance` | `History` | `Settings`).
 - **Interactive Relational Tree Preview**: Dual-tab preview modal to inspect parent and child hierarchies with simulated IDs before org insertion.
 
-### 3. 🧹 Data Cleaner & Bulk Record Deletion
+### 3. 🔗 Lookup Relationship Selector & Org Search
+- **3 Flexible Lookup Modes**: Assign lookups via Random from Org, Random from Session History, or Specific Record ID.
+- **Live In-Org Record Search**: Instant search modal queries live Salesforce records with type, record ID, and name previews.
+
+### 4. 🧹 Data Cleaner & Bulk Record Deletion
 - **Live Total in Org**: Real-time SOQL count badge (`SELECT count() FROM Object`) displaying the total number of records currently in Salesforce.
 - **Dynamic Display Fields**: Automatically identifies the primary label field (`Name`, `CaseNumber`, `Subject`, `Title`, `DeveloperName`, etc.) for any object.
 - **Flexible Multi-Record Selection**: Select records individually, by filter, or all together via the tri-state header checkbox.
@@ -34,7 +40,7 @@ A modern, high-performance **Manifest V3 Chrome Extension** designed for Salesfo
 - **Composite Batch Delete**: Moves records in batches of up to 200 to the Salesforce **Recycle Bin** via the Composite API.
 - **Confirmation Safeguards**: Danger-themed confirmation modal with record count warnings and cascading delete reminders.
 
-### 4. 🛡️ Enterprise Security & Strict Domain Isolation
+### 5. 🛡️ Enterprise Security & Strict Domain Isolation
 - **Salesforce-Only Barrier**: Active tab verification restricts execution exclusively to Salesforce domains (`*.salesforce.com`, `*.force.com`, `*.site.com`, etc.).
 - **Multi-Tab Org Detection**: Automatically detects open Salesforce tabs across other windows with 1-click switching.
 - **Manifest V3 CSP Hardened**: Zero inline event handlers (`onclick`), fully strict Content Security Policy, and defensive DOM escaping.

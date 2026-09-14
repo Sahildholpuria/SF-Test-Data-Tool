@@ -19,7 +19,7 @@ SF DataForge
 
 ### Version
 ```
-1.0.1
+1.1.0
 ```
 
 ### Summary / Short Description (Strict <= 132 character limit)
@@ -80,6 +80,21 @@ Whether validating validation rules, testing automated flows, conducting user ac
 • Dedicated picklist modal allows searching or selecting random active entries.
 • Fully compatible with State and Country picklists.
 
+🚀 ADVANCE: PARENT-CHILD RELATIONAL DATA GENERATOR
+• Generate entire relational data trees (e.g. Accounts with linked Contacts, Opportunities, and Cases) in a single click.
+• Automatic in-memory foreign key wiring seamlessly attaches parent IDs to child records without manual intervention.
+• Configurable child record counts per parent and full tree hierarchy visualization.
+• Master On/Off switch in the dedicated Advance tab to easily toggle relational generation when needed.
+
+🔗 LOOKUP RELATIONSHIP SELECTOR & ORG RECORD SEARCH
+• Wire lookup and reference fields with 3 flexible strategies: Random Org Record, Random from Current Session History, or Specific Record ID.
+• Integrated live lookup modal with instant search across your Salesforce org records.
+• Direct preview of selected target records directly in your configuration table.
+
+🏷️ RECORD TYPE AUTO-DETECTION & FILTERING
+• Automatically identifies objects with multiple active record types.
+• Quickly assign specific Record Type IDs to generated records.
+
 🧹 DATA CLEANER & BULK RECORD DELETION
 • Live record counter displays the total number of records in your org for the selected object.
 • Dynamic display field detection shows primary record labels for easy identification.
@@ -92,9 +107,10 @@ Whether validating validation rules, testing automated flows, conducting user ac
 • Clickable record ID links open newly created records directly in your Salesforce tab.
 • One-click export to CSV or JSON formats for offline analysis.
 
-🎨 CLEAN LIGHT & DARK THEMES
+🎨 CLEAN LIGHT & DARK THEMES & RESPONSIVE DESIGN
 • Modern interface inspired by the Salesforce Lightning Design System.
 • Quick theme switcher in the header to alternate between Clean Light and Dark modes.
+• Fully responsive multi-column layout optimized for popup and Chrome Side Panel.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔒 PRIVACY & SECURITY FIRST
@@ -190,6 +206,22 @@ https://your-username.github.io/sf-test-data-tool/privacy_policy.html
 
 A clean production ZIP file has been created at:
 ```
-dist/sf-dataforge-v1.0.0.zip
+dist/sf-dataforge-v1.1.0.zip
 ```
 This package excludes all development scratch files, test scripts, and internal documentation, containing strictly the Manifest V3 production bundle ready for instant Chrome Web Store review.
+
+---
+
+## 🚀 Section 6: What's New in Version 1.1.0 (Store Release Notes)
+
+*Copy and paste into the "What's new in this version" field in the Chrome Web Store Developer Console:*
+
+```markdown
+Version 1.1.0 Feature & Performance Update:
+• New Advance Tab: Parent-Child Relational Data Generator. Easily create parent records (e.g. Accounts) with automatically wired child records (Contacts, Opportunities, Cases) in a single click with in-memory foreign key wiring.
+• Master Toggle: Easily toggle Relational Generation ON or OFF anytime in the Advance tab.
+• Lookup Relationship Selector: Wire lookup/reference fields using Random Org Records, Random from Session History, or live search across your org.
+• Record Type Discovery: Automatically detects objects with multiple active record types and allows assigning specific Record Type IDs.
+• UI & Responsive Overhaul: Multi-column responsive layout optimized for popup and Chrome Side Panel, plus refined dark and light theme styling.
+• Visual Bug Fixes: Fixed select dropdown chevron background tiling issue in dark mode.
+```

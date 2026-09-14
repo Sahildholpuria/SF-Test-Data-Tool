@@ -411,14 +411,14 @@ Whenever you prepare a release, update the version in two places:
    ```json
    {
      "manifest_version": 3,
-     "name": "SF DataForge - Salesforce Test Data Generator",
-     "version": "1.0.1",
+     "name": "SF DataForge - Salesforce (SF) Test Data Generator & Cleaner",
+     "version": "1.1.0",
      ...
    }
    ```
-2. **`popup.html`** (user-facing badge under Settings > About):
+2. **`popup.html` & `sidepanel.html`** (user-facing badge under Settings > About):
    ```html
-   <span>Version 1.0.1 (Manifest V3)</span>
+   <span>Version 1.1.0 (Manifest V3)</span>
    ```
 
 ---
@@ -440,12 +440,12 @@ cd "/Users/sahildholpuria/Documents/SF Test Data Tool"
 5. Packages only the required production files:
    - `manifest.json`
    - `background.js`
-   - `popup.html`, `popup.css`, `popup.js`
+   - `popup.html`, `sidepanel.html`, `popup.css`, `popup.js`
    - `icons/` (16, 32, 48, 128px pngs)
    - `src/` (`generatorEngine.js`, `salesforceService.js`, `storageService.js`)
 6. Produces the final, clean store zip:
    ```
-   dist/sf-dataforge-v1.0.1.zip
+   dist/sf-dataforge-v1.1.0.zip
    ```
 
 ---
@@ -483,4 +483,35 @@ Before submitting to Google, test the changes locally:
 
 - **Fast Review for Updates**: Minor and patch updates for existing, approved extensions are typically processed rapidly (often within 2 to 24 hours).
 - **Zero Effort for Users**: Once Google approves the update, Chrome automatically pushes the new version to all active installations within a few hours. Users do not need to take any action!
+
+---
+
+## 📜 11. Release History & Changelog
+
+### Version 1.1.0 (Current Release)
+- **Advance: Parent-Child Relational Data Generator**:
+  - Dedicated "Advance" tab adjacent to History.
+  - Generates parent records (Accounts) with auto-linked child records (Contacts, Opportunities, Cases) in a single click.
+  - Foreign key auto-wiring in-memory without manual intervention.
+  - Master feature switch to toggle relational capabilities on or off at will.
+- **Lookup & Reference Relationship Selector**:
+  - Interactive lookup selector modal with live search across org records.
+  - 3 generation modes: Random from Org, Random from Session History, or Specific Record ID.
+- **Record Types Auto-Detection**:
+  - Automatically identifies multiple active Record Types on standard/custom objects.
+  - Dedicated dropdown to target specific record types during mock generation.
+- **UI Responsiveness & Polish**:
+  - Complete multi-column responsive layout for side panel and narrow viewports.
+  - Resolved dark mode select dropdown arrow tiling bug.
+- **Side Panel Full Support**:
+  - Standalone `sidepanel.html` view with dedicated layout rules.
+
+### Version 1.0.1
+- Added Data Cleaner tab with live org record counts and composite deletion safeguards.
+- Picklist explorer modal with search and instant pill selection.
+- Multi-theme support (Dark Mode & Light Mode).
+- Zero-duplicate combinatorial engine with 10,800+ permutations.
+
+### Version 1.0.0
+- Initial release with standard/custom object test data generation and CSV/JSON export.
 
