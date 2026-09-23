@@ -412,13 +412,13 @@ Whenever you prepare a release, update the version in two places:
    {
      "manifest_version": 3,
      "name": "SF DataForge - Salesforce (SF) Test Data Generator & Cleaner",
-     "version": "1.1.0",
+     "version": "1.1.1",
      ...
    }
    ```
 2. **`popup.html` & `sidepanel.html`** (user-facing badge under Settings > About):
    ```html
-   <span>Version 1.1.0 (Manifest V3)</span>
+   <span>Version 1.1.1 (Manifest V3)</span>
    ```
 
 ---
@@ -445,7 +445,7 @@ cd "/Users/sahildholpuria/Documents/SF Test Data Tool"
    - `src/` (`generatorEngine.js`, `salesforceService.js`, `storageService.js`)
 6. Produces the final, clean store zip:
    ```
-   dist/sf-dataforge-v1.1.0.zip
+   dist/sf-dataforge-v1.1.1.zip
    ```
 
 ---
@@ -488,7 +488,20 @@ Before submitting to Google, test the changes locally:
 
 ## 📜 11. Release History & Changelog
 
-### Version 1.1.0 (Current Release)
+### Version 1.1.1 (Current Release)
+- **Pinned Bottom Action Footers**:
+  - Anchored `.generator-footer`, `.deleter-footer`, and `.advance-action-bar` permanently to the bottom of the viewport across popup and sidepanel views.
+  - Enabled independent schema and records table scrolling with sticky action buttons (`[Generate & Insert]`, `[Preview]`, `[Save Preset]`).
+  - Flush edge-to-edge layout with crisp 1px top border and subtle elevation shadow.
+- **Chrome Side Panel Ergonomics**:
+  - Added single-row horizontally scrollable pill navigation for compact side panel widths.
+  - Full-bleed negative margins (`-10px`) in side panel mode for seamless docked experience.
+- **UI Modernization**:
+  - Segmented active navigation pill styling.
+  - Pill-shaped search bar with instant clear button.
+  - Custom SVG chevron wrappers for uniform dropdown aesthetics across themes.
+
+### Version 1.1.0
 - **Advance: Parent-Child Relational Data Generator**:
   - Dedicated "Advance" tab adjacent to History.
   - Generates parent records (Accounts) with auto-linked child records (Contacts, Opportunities, Cases) in a single click.

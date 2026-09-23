@@ -19,7 +19,7 @@ SF DataForge
 
 ### Version
 ```
-1.1.0
+1.1.1
 ```
 
 ### Summary / Short Description (Strict <= 132 character limit)
@@ -206,22 +206,21 @@ https://your-username.github.io/sf-test-data-tool/privacy_policy.html
 
 A clean production ZIP file has been created at:
 ```
-dist/sf-dataforge-v1.1.0.zip
+dist/sf-dataforge-v1.1.1.zip
 ```
 This package excludes all development scratch files, test scripts, and internal documentation, containing strictly the Manifest V3 production bundle ready for instant Chrome Web Store review.
 
 ---
 
-## 🚀 Section 6: What's New in Version 1.1.0 (Store Release Notes)
+## 🚀 Section 6: What's New in Version 1.1.1 (Store Release Notes)
 
 *Copy and paste into the "What's new in this version" field in the Chrome Web Store Developer Console:*
 
 ```markdown
-Version 1.1.0 Feature & Performance Update:
-• New Advance Tab: Parent-Child Relational Data Generator. Easily create parent records (e.g. Accounts) with automatically wired child records (Contacts, Opportunities, Cases) in a single click with in-memory foreign key wiring.
-• Master Toggle: Easily toggle Relational Generation ON or OFF anytime in the Advance tab.
-• Lookup Relationship Selector: Wire lookup/reference fields using Random Org Records, Random from Session History, or live search across your org.
-• Record Type Discovery: Automatically detects objects with multiple active record types and allows assigning specific Record Type IDs.
-• UI & Responsive Overhaul: Multi-column responsive layout optimized for popup and Chrome Side Panel, plus refined dark and light theme styling.
-• Visual Bug Fixes: Fixed select dropdown chevron background tiling issue in dark mode.
+Version 1.1.1 UI & Layout Optimization Update:
+• Pinned Bottom Action Footers: The action footer bar across Generator, Advance, and Data Cleaner is now permanently docked to the bottom of the viewport for effortless one-click access.
+• Independent Table Scrolling: The fields schema and record deletion tables now scroll independently while action buttons ([Generate & Insert], [Preview], [Save Preset]) remain visible at all times.
+• Side Panel Ergonomics: Full-bleed edge-to-edge docking and single-row horizontally scrollable navigation pill bar designed specifically for the Chrome Side Panel.
+• Design Polish: Modern segmented navigation tabs, rounded search pill with clear button, and custom dropdown chevron wrappers for consistent cross-theme styling.
+• Stability: Verified 100% test pass rate for combinatorial engine, mock insert, and relational graph wiring.
 ```

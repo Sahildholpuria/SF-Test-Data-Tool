@@ -18,7 +18,7 @@
         <div class="brand-text">
           <div class="brand-title-row">
             <h1 class="brand-title">SF DataForge</h1>
-            <span class="brand-badge">PRO</span>
+            <span class="brand-badge">v1.1</span>
           </div>
           <p class="brand-subtitle">Salesforce Test Data Generator</p>
         </div>
@@ -233,11 +233,13 @@
             <!-- Destination Action -->
             <div class="form-group flex-1">
               <label for="destinationSelect" class="form-label">Action Target</label>
-              <select id="destinationSelect" class="form-control">
-                <option value="salesforce">⚡ Insert to Org</option>
-                <option value="csv">📥 Download CSV</option>
-                <option value="json">📋 Download JSON</option>
-              </select>
+              <div class="custom-select-wrapper">
+                <select id="destinationSelect" class="form-control" aria-label="Action Target">
+                  <option value="salesforce">⚡ Insert to Org</option>
+                  <option value="csv">📥 Download CSV</option>
+                  <option value="json">📋 Download JSON</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -431,11 +433,13 @@
               <!-- Destination Action -->
               <div class="form-group flex-1">
                 <label for="advanceDestinationSelect" class="form-label">Action Target</label>
-                <select id="advanceDestinationSelect" class="form-control">
-                  <option value="salesforce">⚡ Insert to Org</option>
-                  <option value="csv">📥 Download CSV</option>
-                  <option value="json">📋 Download JSON</option>
-                </select>
+                <div class="custom-select-wrapper">
+                  <select id="advanceDestinationSelect" class="form-control" aria-label="Action Target">
+                    <option value="salesforce">⚡ Insert to Org</option>
+                    <option value="csv">📥 Download CSV</option>
+                    <option value="json">📋 Download JSON</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -507,9 +511,11 @@
                 <span>Target SObject to Clean</span>
                 <span class="field-meta-tag" id="deleterObjectTypeBadge">Standard</span>
               </label>
-              <select id="deleterSObjectSelect" class="form-control form-select">
-                <option value="" disabled selected>Loading SObjects...</option>
-              </select>
+              <div class="custom-select-wrapper">
+                <select id="deleterSObjectSelect" class="form-control form-select" aria-label="Target SObject to Clean">
+                  <option value="" disabled selected>Loading SObjects...</option>
+                </select>
+              </div>
             </div>
 
             <!-- Total in Org Stat Badge -->
@@ -521,12 +527,14 @@
             <!-- Fetch Limit -->
             <div class="form-group w-auto">
               <label for="deleterFetchLimit" class="form-label">Query Limit</label>
-              <select id="deleterFetchLimit" class="form-control form-select">
-                <option value="50">50 records</option>
-                <option value="100" selected>100 records</option>
-                <option value="200">200 records</option>
-                <option value="500">500 records</option>
-              </select>
+              <div class="custom-select-wrapper">
+                <select id="deleterFetchLimit" class="form-control form-select" aria-label="Query Limit">
+                  <option value="50">50 records</option>
+                  <option value="100" selected>100 records</option>
+                  <option value="200">200 records</option>
+                  <option value="500">500 records</option>
+                </select>
+              </div>
             </div>
 
             <!-- Refresh / Fetch Button -->
@@ -748,7 +756,7 @@
           <h3 class="card-title">About SF DataForge</h3>
           <p class="card-desc">Designed & developed with precision by <strong>Sahil Dholpuria</strong> for Salesforce Admins, Developers & QA Teams.</p>
           <div class="d-flex align-items-center justify-content-between text-muted text-xs mt-2 pt-2 border-top">
-            <span>Version 1.1.0 (Manifest V3)</span>
+            <span>Version 1.1.1 (Manifest V3)</span>
             <span>Developer: <strong>Sahil Dholpuria</strong></span>
           </div>
         </div>
