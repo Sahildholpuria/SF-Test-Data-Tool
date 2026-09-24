@@ -71,16 +71,38 @@ All network requests made by the extension are directed **strictly and exclusive
 
 ---
 
-## 6. Security
+## 6. Limited Use Policy & Chrome Web Store Compliance
 
-SF DataForge is engineered to enterprise security standards:
-- Fully compliant with **Chrome Manifest V3** Content Security Policies.
-- Enforces strict input validation to prevent SOQL injection and Cross-Site Scripting (XSS).
-- Uses encrypted HTTPS connections for all Salesforce API communications.
+**The use of information received from Google APIs will adhere to the [Chrome Web Store User Data Policy](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), including the Limited Use requirements.**
+
+Specifically, SF DataForge affirms that:
+1. **Single Purpose Restriction**: Data accessed through Chrome APIs is used solely to provide and improve the user-facing test data generation and data cleanup features disclosed in our documentation.
+2. **No Data Transfers**: We do not transfer or sell user data to any third party, advertising network, data broker, or information reseller.
+3. **No Advertising**: User data is never used or transferred for personalized advertising, retargeting, or interest-based profiling.
+4. **No Creditworthiness Evaluation**: User data is never used or transferred to determine creditworthiness or for lending purposes.
+5. **No Human Access**: We do not permit humans to read user data. All operations, schema analyses, and token handshakes occur programmatically and locally within the user's browser runtime.
 
 ---
 
-## 7. Contact & Inquiries
+## 7. Security
+
+SF DataForge is engineered to enterprise security standards:
+- Fully compliant with **Chrome Manifest V3** Content Security Policies (`script-src 'self'; object-src 'none'; base-uri 'self'`).
+- Enforces strict input validation to prevent SOQL injection and Cross-Site Scripting (XSS).
+- Uses encrypted HTTPS connections exclusively for all direct Salesforce REST API communications.
+- Contains zero remote script tags, zero external CDN dependencies, and zero dynamic code execution (`eval()` or `new Function()`).
+
+---
+
+## 8. Trademark Disclaimer
+
+Salesforce, Sales Cloud, Service Cloud, Lightning, and other Salesforce marks are registered trademarks of Salesforce, Inc. 
+
+**SF DataForge is an independent productivity extension created by Sahil Dholpuria and is not produced, affiliated with, sponsored by, or endorsed by Salesforce, Inc.**
+
+---
+
+## 9. Contact & Inquiries
 
 If you have questions regarding this Privacy Policy or the security practices of SF DataForge, please contact:
 

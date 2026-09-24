@@ -19,7 +19,7 @@ SF DataForge
 
 ### Version
 ```
-1.1.1
+1.1.2
 ```
 
 ### Summary / Short Description (Strict <= 132 character limit)
@@ -131,6 +131,13 @@ Whether validating validation rules, testing automated flows, conducting user ac
 👨‍💻 DEVELOPER & SUPPORT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Developed by Sahil Dholpuria for the global Salesforce community.
+Support & Feedback: dholpuria1999@gmail.com
+GitHub: https://github.com/sahildholpuria/SF-Test-Data-Tool
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚖️ TRADEMARK DISCLAIMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Salesforce, Sales Cloud, Service Cloud, Lightning, and others are registered trademarks of Salesforce, Inc. SF DataForge is an independent productivity extension developed by Sahil Dholpuria and is not affiliated with, sponsored by, or endorsed by Salesforce, Inc.
 ```
 
 ---
@@ -179,13 +186,17 @@ Required to communicate directly with the user's authenticated Salesforce organi
 ### Data Usage Declarations (Checkboxes in Developer Console)
 - **Do you collect personal data?** → **No** (The extension does not collect or transmit user data to external servers).
 - **Authentication information** → Check: **Yes**, used solely to authenticate API requests directly to the user's designated Salesforce instance. Not stored on external servers.
-- **Data transfer** → Select: **"I certify that my extension does not sell user data, does not use or transfer user data for purposes unrelated to the extension's core functionality, and does not use or transfer user data for creditworthiness or lending purposes."**
+- **Data transfer certification** → Select: **"I certify that my extension does not sell user data, does not use or transfer user data for purposes unrelated to the extension's core functionality, and does not use or transfer user data for creditworthiness or lending purposes."**
+- **Limited Use Compliance Affirmation**:
+  ```
+  The use of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.
+  ```
 
 ### Privacy Policy URL
 ```
-https://your-username.github.io/sf-test-data-tool/privacy_policy.html
+https://raw.githubusercontent.com/sahildholpuria/SF-Test-Data-Tool/main/privacy_policy.html
 ```
-*(Or link to your hosted PRIVACY_POLICY.md on GitHub)*
+*(Or link to your hosted PRIVACY_POLICY.md or GitHub Pages: https://sahildholpuria.github.io/SF-Test-Data-Tool/privacy_policy.html)*
 
 ---
 
@@ -206,20 +217,21 @@ https://your-username.github.io/sf-test-data-tool/privacy_policy.html
 
 A clean production ZIP file has been created at:
 ```
-dist/sf-dataforge-v1.1.1.zip
+dist/sf-dataforge-v1.1.2.zip
 ```
 This package excludes all development scratch files, test scripts, and internal documentation, containing strictly the Manifest V3 production bundle ready for instant Chrome Web Store review.
 
 ---
 
-## 🚀 Section 6: What's New in Version 1.1.1 (Store Release Notes)
+## 🚀 Section 6: What's New in Version 1.1.2 (Store Release Notes)
 
 *Copy and paste into the "What's new in this version" field in the Chrome Web Store Developer Console:*
 
 ```markdown
-Version 1.1.1 UI & Layout Optimization Update:
+Version 1.1.2 Production & Policy Compliance Release:
+• Chrome Web Store Program Policies Full Compliance: Added explicit Limited Use affirmative statement, third-party trademark disclaimers, and transparent client-side privacy declarations.
 • Pinned Bottom Action Footers: The action footer bar across Generator, Advance, and Data Cleaner is now permanently docked to the bottom of the viewport for effortless one-click access.
-• Independent Table Scrolling: The fields schema and record deletion tables now scroll independently while action buttons ([Generate & Insert], [Preview], [Save Preset]) remain visible at all times.
+• Independent Table Scrolling: The fields schema and record deletion tables scroll independently while action buttons ([Generate & Insert], [Preview], [Save Preset]) remain visible at all times.
 • Side Panel Ergonomics: Full-bleed edge-to-edge docking and single-row horizontally scrollable navigation pill bar designed specifically for the Chrome Side Panel.
 • Design Polish: Modern segmented navigation tabs, rounded search pill with clear button, and custom dropdown chevron wrappers for consistent cross-theme styling.
 • Stability: Verified 100% test pass rate for combinatorial engine, mock insert, and relational graph wiring.

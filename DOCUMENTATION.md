@@ -412,13 +412,13 @@ Whenever you prepare a release, update the version in two places:
    {
      "manifest_version": 3,
      "name": "SF DataForge - Salesforce (SF) Test Data Generator & Cleaner",
-     "version": "1.1.1",
+     "version": "1.1.2",
      ...
    }
    ```
 2. **`popup.html` & `sidepanel.html`** (user-facing badge under Settings > About):
    ```html
-   <span>Version 1.1.1 (Manifest V3)</span>
+   <span>Version 1.1.2 (Manifest V3)</span>
    ```
 
 ---
@@ -445,7 +445,7 @@ cd "/Users/sahildholpuria/Documents/SF Test Data Tool"
    - `src/` (`generatorEngine.js`, `salesforceService.js`, `storageService.js`)
 6. Produces the final, clean store zip:
    ```
-   dist/sf-dataforge-v1.1.1.zip
+   dist/sf-dataforge-v1.1.2.zip
    ```
 
 ---
@@ -488,7 +488,17 @@ Before submitting to Google, test the changes locally:
 
 ## 📜 11. Release History & Changelog
 
-### Version 1.1.1 (Current Release)
+### Version 1.1.2 (Current Release)
+- **Chrome Web Store Program Policies Full Compliance**:
+  - Implemented the mandatory Limited Use affirmative statement across documentation and privacy policies.
+  - Incorporated clear third-party trademark disclaimers regarding Salesforce, Inc.
+  - Added direct privacy policy and open-source GitHub repository links inside the extension Settings > About interface.
+- **Fixed & Docked Action Footers**:
+  - Anchored `.generator-footer`, `.deleter-footer`, and `.advance-action-bar` permanently to the bottom of the viewport with independent table scrolling.
+- **Side Panel Full-Bleed Layout**:
+  - Single-row horizontally scrollable navigation pill strip and edge-to-edge footer docking.
+
+### Version 1.1.1
 - **Pinned Bottom Action Footers**:
   - Anchored `.generator-footer`, `.deleter-footer`, and `.advance-action-bar` permanently to the bottom of the viewport across popup and sidepanel views.
   - Enabled independent schema and records table scrolling with sticky action buttons (`[Generate & Insert]`, `[Preview]`, `[Save Preset]`).

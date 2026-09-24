@@ -1,6 +1,6 @@
 # ⚡ SF DataForge — Salesforce Test Data Generator & Data Cleaner
 
-[![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)]()
 [![Chrome Manifest V3](https://img.shields.io/badge/Chrome_Extension-Manifest_V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![Salesforce API](https://img.shields.io/badge/Salesforce_REST_API-v60.0-00A1E0?logo=salesforce&logoColor=white)](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_what_is_rest_api.htm)
 [![Zero Duplicates](https://img.shields.io/badge/Generation_Engine-Zero_Duplicates-059669?logo=checkmarx&logoColor=white)]()
@@ -151,6 +151,18 @@ For detailed technical explanations, address clustering algorithms, picklist exp
 Created and maintained with precision by **Sahil Dholpuria**.
 - **GitHub**: [@sahildholpuria](https://github.com/sahildholpuria)
 - **Email**: dholpuria1999@gmail.com
+
+---
+
+## 🔒 Chrome Web Store Policy Compliance & Limited Use
+
+The use of information received from Google APIs adheres to the [Chrome Web Store User Data Policy](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), including the Limited Use requirements. SF DataForge does not collect, sell, or transfer user data to third parties. All operations run locally within your browser.
+
+---
+
+## ⚖️ Trademark Disclaimer
+
+Salesforce, Sales Cloud, Service Cloud, Lightning, and others are registered trademarks of Salesforce, Inc. SF DataForge is an independent productivity extension and is not affiliated with, sponsored by, or endorsed by Salesforce, Inc.
 
 ---
 
